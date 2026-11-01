@@ -168,6 +168,11 @@ table.board th {
   white-space: nowrap;
 }
 
+table.board th.sorted {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--series-1) 8%, transparent);
+}
+
 table.board td {
   padding: 9px 10px;
   border-bottom: 1px solid var(--gridline);
