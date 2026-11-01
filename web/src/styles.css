@@ -326,3 +326,27 @@ button.btn.danger {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
 }
+
+/* ---------- 视图切换 tab ---------- */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.tabs button {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: color-mix(in srgb, var(--series-1) 12%, transparent);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-color: transparent;
+}
