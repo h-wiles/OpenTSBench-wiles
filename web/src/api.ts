@@ -4,6 +4,7 @@ import type {
   Plugins,
   RunDetail,
   RunSummary,
+  SeriesData,
   WindowData,
 } from "./types";
 
@@ -33,6 +34,21 @@ export const api = {
     http<WindowData>(
       `/runs/${encodeURIComponent(id)}/window?index=${index}` +
         (channel ? `&channel=${encodeURIComponent(channel)}` : "")
+    ),
+  series: (
+    id: string,
+    params: { start?: string; end?: string; channel?: string; lead?: number } = {}
+  ) =>
+    http<SeriesData>(
+      `/runs/${encodeURIComponent(id)}/series?` +
+        new URLSearchParams(
+          Object.entries({
+            start: params.start ?? "",
+            end: params.end ?? "",
+            channel: params.channel ?? "",
+            lead: params.lead != null ? String(params.lead) : "",
+          }).filter(([, v]) => v !== "")
+        ).toString()
     ),
   createRun: (config: unknown) =>
     http<{ accepted: boolean }>("/runs", {
