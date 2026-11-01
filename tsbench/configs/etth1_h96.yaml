@@ -1,0 +1,19 @@
+# ETTh1, 96 步预测：基线 + 原生 DLinear + TSLib DLinear 互证
+name: etth1_h96
+dataset:
+  name: csv
+  config:
+    path: data/ETT/ETTh1.csv
+    split: { type: ett }        # ETT 标准 12/4/4 月切分
+    scale: true
+task:
+  context_length: 96
+  horizon: 96
+  seasonal_period: 24           # 小时级数据, MASE 用日周期
+models:
+  - { name: naive }
+  - { name: seasonal_naive, config: { period: 24 } }
+  - { name: moving_average, config: { window: 24 } }
+  - { name: dlinear, config: { epochs: 10, lr: 0.005 } }
+  - { name: tslib_dlinear, config: { epochs: 10, lr: 0.005 } }
+metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]
