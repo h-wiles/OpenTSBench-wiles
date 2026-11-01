@@ -61,6 +61,7 @@ export default function ForecastChart({ data }: { data: WindowData }) {
         animation: false,
         legend: {
           top: 0,
+          data: ["历史 (context)", "真值", "预测"], // 排除 markLine 辅助 series
           textStyle: { color: p.secondary, fontSize: 12 },
           itemWidth: 18,
         },
