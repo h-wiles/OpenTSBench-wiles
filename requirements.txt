@@ -1,0 +1,8 @@
+numpy
+pandas
+torch
+pyyaml
+fastapi
+uvicorn
+pydantic
+reformer-pytorch   # Time-Series-Library 的 SelfAttention_Family 依赖
