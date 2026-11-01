@@ -63,3 +63,15 @@ export interface WindowData {
   prediction: number[];
   timestamps: string[];
 }
+
+export interface SeriesData {
+  channel: string;
+  channels: string[];
+  lead: number;
+  horizon: number;
+  n_points: number;
+  valid_range: [string, string];
+  timestamps: string[];
+  truth: number[];
+  prediction: number[];
+}
