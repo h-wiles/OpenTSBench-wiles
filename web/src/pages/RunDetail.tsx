@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
 import ForecastChart from "../components/ForecastChart";
+import SeriesChart from "../components/SeriesChart";
 import StatusBadge from "../components/StatusBadge";
 import type { RunDetail, WindowData } from "../types";
 
@@ -18,6 +19,7 @@ export default function RunDetailPage() {
   const [index, setIndex] = useState(0);
   const [channel, setChannel] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [view, setView] = useState<"window" | "range">("window");
 
   // 加载详情；运行中则轮询
   useEffect(() => {
@@ -110,47 +112,68 @@ export default function RunDetailPage() {
 
       {run.status === "completed" && win && (
         <div className="card">
-          <h2>预测曲线（测试集滑窗）</h2>
-          <div className="filter-row">
-            <div className="field">
-              <label>通道</label>
-              <select value={channel} onChange={(e) => loadWindow(index, e.target.value)}>
-                {win.channels.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field" style={{ flex: 1, minWidth: 220 }}>
-              <label>
-                窗口 {index} / {win.n_windows - 1}
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={win.n_windows - 1}
-                value={index}
-                onChange={(e) => loadWindow(Number(e.target.value), channel)}
-                style={{ width: "100%" }}
-              />
-            </div>
-            <div className="field">
-              <label>跳转</label>
-              <input
-                type="number"
-                min={0}
-                max={win.n_windows - 1}
-                value={index}
-                onChange={(e) => loadWindow(Number(e.target.value), channel)}
-                style={{ minWidth: 90 }}
-              />
-            </div>
+          <h2>预测可视化</h2>
+          <div className="tabs">
+            <button
+              className={view === "window" ? "active" : ""}
+              onClick={() => setView("window")}
+            >
+              单窗口
+            </button>
+            <button
+              className={view === "range" ? "active" : ""}
+              onClick={() => setView("range")}
+            >
+              时间区间对比
+            </button>
           </div>
-          <ForecastChart data={win} />
-          <p className="hint">
-            灰线为模型可见的历史 context，蓝线（实线）为真值，橙线（虚线）为模型预测；数值已反标准化回原始量纲。
-          </p>
+
+          {view === "window" ? (
+            <>
+              <div className="filter-row">
+                <div className="field">
+                  <label>通道</label>
+                  <select value={channel} onChange={(e) => loadWindow(index, e.target.value)}>
+                    {win.channels.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field" style={{ flex: 1, minWidth: 220 }}>
+                  <label>
+                    窗口 {index} / {win.n_windows - 1}
+                  </label>
+                  <input
+                    type="range"
+                    min={0}
+                    max={win.n_windows - 1}
+                    value={index}
+                    onChange={(e) => loadWindow(Number(e.target.value), channel)}
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <div className="field">
+                  <label>跳转</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={win.n_windows - 1}
+                    value={index}
+                    onChange={(e) => loadWindow(Number(e.target.value), channel)}
+                    style={{ minWidth: 90 }}
+                  />
+                </div>
+              </div>
+              <ForecastChart data={win} />
+              <p className="hint">
+                灰线为模型可见的历史 context，蓝线（实线）为真值，橙线（虚线）为模型预测；数值已反标准化回原始量纲。
+              </p>
+            </>
+          ) : (
+            <SeriesChart runId={runId} horizon={run.task.horizon} />
+          )}
         </div>
       )}
     </>
