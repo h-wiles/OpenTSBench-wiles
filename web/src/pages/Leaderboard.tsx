@@ -171,12 +171,12 @@ export default function Leaderboard() {
                   return (
                     <th
                       key={col}
+                      className={sortBy === col ? "sorted" : ""}
                       style={{ cursor: "pointer" }}
                       title={`${col}（${meta?.higher_is_better ? "越高越好" : "越低越好"}），点击排序`}
                       onClick={() => setSortBy(col)}
                     >
                       {col} {arrow}
-                      {sortBy === col ? " ·" : ""}
                     </th>
                   );
                 })}
