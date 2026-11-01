@@ -7,6 +7,20 @@
 
 架构设计详见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
+## 界面预览
+
+**排行榜** — 同口径多模型对比，每列最优自动高亮，点击列名切换排序（`?dataset=ETTh1&horizon=96` 可直达分享）：
+
+![排行榜](docs/images/demo-leaderboard.png)
+
+**实验详情** — 7 项指标卡片 + 交互式预测曲线（灰线为模型可见的历史 context，蓝实线为真值，橙虚线为预测；可选窗口/通道，数值已反标准化回原始量纲）：
+
+![实验详情](docs/images/demo-run-detail.png)
+
+**发起实验** — 页面选数据集/任务参数/模型/指标，后台异步执行，完成后自动进入排行榜：
+
+![发起实验](docs/images/demo-new-run.png)
+
 ## 特性
 
 - **插件化核心**：`@register_dataset` / `@register_model` / `@register_metric`
