@@ -1,0 +1,17 @@
+# ETTm1 (15 分钟级), 96 步预测
+name: ettm1_h96
+dataset:
+  name: csv
+  config:
+    path: data/ETT/ETTm1.csv
+    split: { type: ett }
+    scale: true
+task:
+  context_length: 96
+  horizon: 96
+  seasonal_period: 96           # 15min 级数据的日周期
+models:
+  - { name: naive }
+  - { name: seasonal_naive, config: { period: 96 } }
+  - { name: dlinear, config: { epochs: 5, lr: 0.005, batch_size: 64 } }
+metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]
