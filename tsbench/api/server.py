@@ -135,6 +135,76 @@ def create_app(results_dir: str = "results") -> FastAPI:
             "timestamps": [str(t) for t in ts[origin - ctx : origin + horizon]],
         })
 
+    @app.get("/api/runs/{run_id}/series")
+    def run_series(
+        run_id: str,
+        start: Optional[str] = None,
+        end: Optional[str] = None,
+        channel: Optional[str] = None,
+        lead: int = 0,
+    ) -> Dict[str, Any]:
+        """任意时间区间的 真值 vs 预测 对比序列（已反标准化）。
+
+        预测口径：时刻 u 的预测值取"起点为 u-lead 的窗口"的第 lead 步，
+        即模型提前 lead+1 步对 u 做出的预测；lead=0 为滚动 1 步预测。
+        """
+        try:
+            arrays = store.load_arrays(run_id)
+            run = store.load_run(run_id)
+        except KeyError as e:
+            raise HTTPException(404, str(e))
+
+        horizon = run["task"]["horizon"]
+        lead = max(0, min(lead, horizon - 1))
+        feature_names = [str(x) for x in arrays["feature_names"]]
+        if channel not in feature_names:
+            channel = feature_names[-1]
+        ch = feature_names.index(channel)
+
+        full = arrays["full_series"]
+        ts = arrays["timestamps"]
+        test_start = int(arrays["test_start"][0])
+        n_windows = len(arrays["y_true"])
+        first_origin, last_origin = test_start, test_start + n_windows - 1
+
+        def ts_to_idx(s: Optional[str], default: int) -> int:
+            if not s:
+                return default
+            target = np.datetime64(s)
+            stamps = ts.astype("datetime64[s]")
+            return int(np.argmin(np.abs(stamps - target)))
+
+        # 有效评估区间：每个 u 都必须存在起点 o=u-lead ∈ [first_origin, last_origin] 的窗口
+        lo = first_origin + lead
+        hi = min(len(full) - 1, last_origin + lead)
+        start_idx = max(lo, ts_to_idx(start, lo))
+        end_idx = min(hi, ts_to_idx(end, hi))
+        if end_idx < start_idx:
+            raise HTTPException(
+                400,
+                f"区间内无可用预测（lead={lead} 时有效范围 "
+                f"{str(ts[lo])} ~ {str(ts[hi])}）",
+            )
+
+        idx = np.arange(start_idx, end_idx + 1)
+        mean, std = float(arrays["scaler_mean"][ch]), float(arrays["scaler_std"][ch])
+
+        def unscale(x: np.ndarray) -> list:
+            return (np.asarray(x, dtype=np.float64) * std + mean).round(4).tolist()
+
+        origins = idx - lead  # 每个时刻的预测起点
+        return _clean({
+            "channel": channel,
+            "channels": feature_names,
+            "lead": lead,
+            "horizon": horizon,
+            "n_points": len(idx),
+            "valid_range": [str(ts[lo]), str(ts[hi])],
+            "timestamps": [str(t) for t in ts[start_idx : end_idx + 1]],
+            "truth": unscale(full[start_idx : end_idx + 1, ch]),
+            "prediction": unscale(arrays["y_pred"][origins - test_start, lead, ch]),
+        })
+
     @app.get("/api/leaderboard")
     def leaderboard(
         dataset: str, horizon: Optional[int] = None, context_length: Optional[int] = None
