@@ -92,17 +92,21 @@ def msis(y_true, y_pred, *, y_train=None, seasonal_period=1) -> float: ...
 
 ## 内置模型与结果示例
 
-ETTh1 · context=96 · horizon=96（CPU 训练，10 epochs）：
+ETTh1 · context=96 · horizon=96（CPU 训练，10 epochs，按 MSE 升序）：
 
-| 模型 | MSE | MAE | MASE | R² |
-|---|---|---|---|---|
-| dlinear | **0.4142** | **0.4303** | 1.023 | 0.626 |
-| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 |
-| seasonal_naive | 0.5122 | 0.4333 | 1.030 | 0.538 |
-| moving_average | 0.7275 | 0.5700 | 1.355 | 0.344 |
-| naive | 1.2944 | 0.7132 | 1.695 | -0.168 |
+| 模型 | MSE | MAE | MASE | R² | 来源 |
+|---|---|---|---|---|---|
+| tslib_itransformer | **0.3894** | **0.4077** | 0.969 | 0.649 | TSLib Adapter |
+| tslib_patchtst | 0.3950 | 0.4133 | 0.982 | 0.644 | TSLib Adapter |
+| dlinear | 0.4142 | 0.4303 | 1.023 | 0.626 | 原生实现 |
+| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 | TSLib Adapter |
+| seasonal_naive | 0.5122 | 0.4333 | 1.030 | 0.538 | 统计基线 |
+| moving_average | 0.7275 | 0.5700 | 1.355 | 0.344 | 统计基线 |
+| naive | 1.2944 | 0.7132 | 1.695 | -0.168 | 统计基线 |
 
-排序合理：DLinear ≈ TSLib DLinear（互证）> seasonal_naive > moving_average > naive。
+- 排序符合文献：iTransformer ≈ PatchTST > DLinear > 基线；数值与论文公开结果同量级
+  （iTransformer 论文 ETTh1-96 MSE 0.386，本框架 0.389）。
+- 原生 DLinear 与 TSLib DLinear 的 MSE 差异 < 0.0001 —— 双向验证评测口径与实现正确性。
 
 > 原生 DLinear 与 TSLib DLinear 的 MSE 差异 < 0.0001，双向验证了框架的评测口径
 > 与两个实现本身的正确性；数值与论文公开结果（~0.40）同量级。
