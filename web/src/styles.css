@@ -1,0 +1,323 @@
+/* OpenTSBench 全局样式 —— 色板取自 dataviz 规范（亮/暗双模式，CSS 变量按角色引用） */
+
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --muted: #898781;
+  --gridline: #e1e0d9;
+  --border: rgba(11, 11, 11, 0.1);
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --good: #0ca30c;
+  --warning: #b8860b;
+  --critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --gridline: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.1);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #e66767;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page);
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--series-1);
+  text-decoration: none;
+}
+
+/* ---------- 布局 ---------- */
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 28px;
+  height: 56px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topnav .brand {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.topnav .brand span {
+  color: var(--series-1);
+}
+
+.topnav a.navlink {
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 4px 2px;
+}
+
+.topnav a.navlink.active {
+  color: var(--text-primary);
+  font-weight: 600;
+  border-bottom: 2px solid var(--series-1);
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 28px 64px;
+}
+
+.page h1 {
+  font-size: 20px;
+  margin: 8px 0 4px;
+}
+
+.page .subtitle {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+
+/* ---------- 筛选行（图表过滤器统一放图表上方一行） ---------- */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.field select,
+.field input {
+  background: var(--surface-1);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  min-width: 140px;
+}
+
+.field input[type="checkbox"] {
+  min-width: auto;
+}
+
+/* ---------- 排行榜表格 ---------- */
+table.board {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.board th {
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--gridline);
+  white-space: nowrap;
+}
+
+table.board td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--gridline);
+  font-variant-numeric: tabular-nums; /* 指标列垂直对齐 */
+  white-space: nowrap;
+}
+
+table.board tr:hover td {
+  background: color-mix(in srgb, var(--series-1) 4%, transparent);
+}
+
+td.best {
+  font-weight: 700;
+  background: color-mix(in srgb, var(--series-1) 12%, transparent);
+}
+
+td.num.na {
+  color: var(--muted);
+}
+
+/* ---------- 状态徽标：图标 + 文字 + 状态色（不只靠颜色） ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.badge .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.badge.completed .dot { background: var(--good); }
+.badge.running .dot { background: var(--warning); animation: pulse 1.2s infinite; }
+.badge.failed .dot { background: var(--critical); }
+
+@keyframes pulse {
+  50% { opacity: 0.35; }
+}
+
+/* ---------- 指标卡片 ---------- */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.metric-tile {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.metric-tile .m-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-tile .m-value {
+  font-size: 22px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 按钮 ---------- */
+button.btn {
+  background: var(--series-1);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.btn.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+button.btn.danger {
+  background: transparent;
+  color: var(--critical);
+  border: 1px solid var(--border);
+}
+
+/* ---------- 表单 ---------- */
+.model-pick {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.model-pick .head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.model-pick .desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-left: 24px;
+}
+
+.model-pick textarea {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--page);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  padding: 8px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.error-box {
+  border: 1px solid var(--critical);
+  color: var(--critical);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
