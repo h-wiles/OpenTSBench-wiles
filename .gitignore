@@ -1,0 +1,19 @@
+# 数据与结果
+data/
+results/
+third_party/
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Node
+web/node_modules/
+web/dist/
+
+# 系统
+.DS_Store
