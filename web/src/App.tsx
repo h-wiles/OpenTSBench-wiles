@@ -2,6 +2,7 @@ import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import Leaderboard from "./pages/Leaderboard";
 import RunDetail from "./pages/RunDetail";
 import NewRun from "./pages/NewRun";
+import MetricsGuide from "./pages/MetricsGuide";
 
 export default function App() {
   return (
@@ -16,6 +17,9 @@ export default function App() {
         <NavLink to="/new" className={({ isActive }) => `navlink${isActive ? " active" : ""}`}>
           发起实验
         </NavLink>
+        <NavLink to="/metrics" className={({ isActive }) => `navlink${isActive ? " active" : ""}`}>
+          指标说明
+        </NavLink>
       </nav>
       <div className="page">
         <Routes>
@@ -23,6 +27,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/runs/:runId" element={<RunDetail />} />
           <Route path="/new" element={<NewRun />} />
+          <Route path="/metrics" element={<MetricsGuide />} />
         </Routes>
       </div>
     </>
