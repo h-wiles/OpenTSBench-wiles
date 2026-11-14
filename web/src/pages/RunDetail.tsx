@@ -5,7 +5,7 @@ import { api } from "../api";
 import ForecastChart from "../components/ForecastChart";
 import SeriesChart from "../components/SeriesChart";
 import StatusBadge from "../components/StatusBadge";
-import type { RunDetail, WindowData } from "../types";
+import type { PluginMeta, RunDetail, WindowData } from "../types";
 
 function fmt(v: number | null | undefined): string {
   if (v == null || Number.isNaN(v)) return "—";
@@ -20,6 +20,21 @@ export default function RunDetailPage() {
   const [channel, setChannel] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [view, setView] = useState<"window" | "range">("window");
+  const [modelPlugins, setModelPlugins] = useState<PluginMeta[]>([]);
+
+  // 模型开源地址由插件元数据提供，加载失败不影响实验详情。
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .plugins()
+      .then((p) => {
+        if (!cancelled) setModelPlugins(p.models);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 加载详情；运行中则轮询
   useEffect(() => {
@@ -63,15 +78,29 @@ export default function RunDetailPage() {
   if (error) return <div className="error-box">{error}</div>;
   if (!run) return <p className="hint">加载中…</p>;
 
+  const sourceUrl = modelPlugins.find((m) => m.name === run.model)?.source_url;
   const metricEntries = Object.entries(run.metrics ?? {}).filter(
     ([k]) => !k.endsWith("__error")
   );
 
   return (
     <>
-      <h1>
-        {run.model} <span className="hint">on</span> {run.dataset}
-      </h1>
+      <div className="model-heading">
+        <h1>
+          {run.model} <span className="hint">on</span> {run.dataset}
+        </h1>
+        {sourceUrl && (
+          <a
+            className="source-link"
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={sourceUrl}
+          >
+            开源实现 ↗
+          </a>
+        )}
+      </div>
       <p className="subtitle mono">{run.run_id}</p>
 
       <div className="card">
