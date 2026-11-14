@@ -143,6 +143,7 @@ def _register(tslib_name: str, description: str, extra_defaults: Dict[str, Any] 
         f"tslib_{tslib_name.lower()}",
         family="tslib",
         framework="pytorch",
+        source_url="https://github.com/thuml/Time-Series-Library",
         description=f"TSLib {tslib_name}: {description}",
     )
     class _M(TSLibForecastModel):
