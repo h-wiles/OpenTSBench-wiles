@@ -90,6 +90,17 @@ _register("iTransformer", "...", {"d_model": 128})
 
 依赖冲突的模型可走子进程适配器（预留扩展点，见架构文档 §7）。
 
+### TimesFM 2.5（零样本预测）
+
+```bash
+git clone https://github.com/google-research/timesfm.git third_party/timesfm
+python3 cli.py run --config tsbench/configs/etth1_timesfm.yaml
+```
+
+TimesFM 不在当前数据集上训练，`fit()` 仅加载预训练权重。首次运行会从 Hugging Face
+下载 `google/timesfm-2.5-200m-pytorch`（约 200M 参数），之后使用本地缓存。
+当前采用 Apache-2.0 的 2.5 版本；多通道数据按单变量逐通道推理，再恢复为统一输出形状。
+
 ### 新数据集
 
 ```python
