@@ -7,6 +7,10 @@ export interface PluginMeta {
   framework?: string;
   source_url?: string;
   higher_is_better?: boolean;
+  title?: string;
+  formula?: string;
+  calculation?: string;
+  note?: string;
 }
 
 export interface Plugins {
