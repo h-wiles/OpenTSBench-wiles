@@ -47,7 +47,7 @@ pip install -r requirements.txt
 # 2. 下载数据集（ETT 系列，约 25MB）
 python3 cli.py download-data
 
-# 3. 跑第一个实验（3 基线 + 原生 DLinear + TSLib DLinear，CPU 约 3 分钟）
+# 3. 跑第一个实验（3 统计基线 + 开源 DLinear，CPU 约 1 分钟）
 python3 cli.py run --config tsbench/configs/etth1_h96.yaml
 
 # 4. 启动 API + 前端
@@ -77,14 +77,15 @@ cd web && npm install && npm run dev # Web: http://localhost:5173
 
 ## 接入新模型 / 数据集 / 指标
 
-### 新模型（20 行接入）
+### 新模型（一行接入开源实现）
 
 进程内适配器（依赖兼容时）— 见 [tsbench/models/tslib_adapter.py](tsbench/models/tslib_adapter.py)：
 
 ```python
-# 继承 TorchForecastModel（免费获得训练循环/早停/批量推理）+ build_network()
-# 或 TSLib 系列一行注册:
+# TSLib 系列一行注册:
 _register("iTransformer", "...", {"d_model": 128})
+# 其它 PyTorch 模型: 继承 TorchForecastModel（免费获得训练循环/早停/批量推理）
+#   + build_network() 返回 (B,L,D)->(B,H,D) 的 nn.Module
 ```
 
 依赖冲突的模型可走子进程适配器（预留扩展点，见架构文档 §7）。
@@ -106,24 +107,20 @@ def msis(y_true, y_pred, *, y_train=None, seasonal_period=1) -> float: ...
 
 ## 内置模型与结果示例
 
+模型全部来自开源实现（通过 TSLib Adapter 零侵入接入）+ 统计基线。
 ETTh1 · context=96 · horizon=96（CPU 训练，10 epochs，按 MSE 升序）：
 
 | 模型 | MSE | MAE | MASE | R² | 来源 |
 |---|---|---|---|---|---|
-| tslib_itransformer | **0.3894** | **0.4077** | 0.969 | 0.649 | TSLib Adapter |
-| tslib_patchtst | 0.3950 | 0.4133 | 0.982 | 0.644 | TSLib Adapter |
-| dlinear | 0.4142 | 0.4303 | 1.023 | 0.626 | 原生实现 |
-| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 | TSLib Adapter |
+| tslib_itransformer | **0.3894** | **0.4077** | 0.969 | 0.649 | TSLib (ICLR 2024) |
+| tslib_patchtst | 0.3950 | 0.4133 | 0.982 | 0.644 | TSLib (ICLR 2023) |
+| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 | TSLib (AAAI 2023) |
 | seasonal_naive | 0.5122 | 0.4333 | 1.030 | 0.538 | 统计基线 |
 | moving_average | 0.7275 | 0.5700 | 1.355 | 0.344 | 统计基线 |
 | naive | 1.2944 | 0.7132 | 1.695 | -0.168 | 统计基线 |
 
-- 排序符合文献：iTransformer ≈ PatchTST > DLinear > 基线；数值与论文公开结果同量级
-  （iTransformer 论文 ETTh1-96 MSE 0.386，本框架 0.389）。
-- 原生 DLinear 与 TSLib DLinear 的 MSE 差异 < 0.0001 —— 双向验证评测口径与实现正确性。
-
-> 原生 DLinear 与 TSLib DLinear 的 MSE 差异 < 0.0001，双向验证了框架的评测口径
-> 与两个实现本身的正确性；数值与论文公开结果（~0.40）同量级。
+排序符合文献：iTransformer ≈ PatchTST > DLinear > 基线；数值与论文公开结果同量级
+（iTransformer 论文 ETTh1-96 MSE 0.386，本框架 0.389）—— 验证评测口径与公开基准可直接对比。
 
 ## 目录结构
 

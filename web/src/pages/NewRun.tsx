@@ -8,7 +8,6 @@ const DEFAULT_MODEL_CONFIG: Record<string, string> = {
   naive: "{}",
   seasonal_naive: '{ "period": 24 }',
   moving_average: '{ "window": 24 }',
-  dlinear: '{ "epochs": 10, "lr": 0.005 }',
   tslib_dlinear: '{ "epochs": 10, "lr": 0.005 }',
   tslib_patchtst: '{ "epochs": 10, "lr": 0.001, "batch_size": 64 }',
   tslib_itransformer: '{ "epochs": 10, "lr": 0.001, "batch_size": 64 }',

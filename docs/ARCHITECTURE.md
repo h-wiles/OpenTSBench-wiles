@@ -51,8 +51,8 @@ OpenTSBench-wiles/
 │   ├── models/                 # 模型插件
 │   │   ├── baselines.py        #   Naive / SeasonalNaive / MovingAverage
 │   │   ├── torch_base.py       #   PyTorch 模型通用训练循环 (早停/验证)
-│   │   ├── dlinear.py          #   原生 DLinear (DL 模型接入示例)
 │   │   └── tslib_adapter.py    #   Time-Series-Library 第三方适配器
+│   │                           #   (DLinear/PatchTST/iTransformer, 一行注册)
 │   ├── metrics/                # 指标插件
 │   │   └── forecasting.py      #   MSE/RMSE/MAE/MAPE/sMAPE/MASE/R²
 │   ├── evaluation/             # 评测层
@@ -135,7 +135,7 @@ dataset:
 task: {context_length: 96, horizon: 96, seasonal_period: 24}
 models:
   - {name: seasonal_naive, config: {period: 24}}
-  - {name: dlinear, config: {epochs: 10, lr: 0.005}}
+  - {name: tslib_dlinear, config: {epochs: 10, lr: 0.005}}
   - {name: tslib_patchtst, config: {epochs: 10}}   # 第三方模型
 metrics: [mse, rmse, mae, mape, smape, mase, r2]
 ```
