@@ -51,8 +51,9 @@ OpenTSBench-wiles/
 │   ├── models/                 # 模型插件
 │   │   ├── baselines.py        #   Naive / SeasonalNaive / MovingAverage
 │   │   ├── torch_base.py       #   PyTorch 模型通用训练循环 (早停/验证)
-│   │   ├── dlinear.py          #   原生 DLinear (DL 模型接入示例)
-│   │   └── tslib_adapter.py    #   Time-Series-Library 第三方适配器
+│   │   ├── tslib_adapter.py    #   Time-Series-Library 第三方适配器
+│   │   │                       #   (DLinear/PatchTST/iTransformer, 一行注册)
+│   │   └── timesfm_adapter.py  #   Google TimesFM 2.5 零样本预测适配器
 │   ├── metrics/                # 指标插件
 │   │   └── forecasting.py      #   MSE/RMSE/MAE/MAPE/sMAPE/MASE/R²
 │   ├── evaluation/             # 评测层
@@ -121,6 +122,7 @@ def smape(y_true, y_pred, *, y_train=None, seasonal_period=1) -> float: ...
 ```
 
 新增插件 = 新建一个文件 + 一个装饰器，`cli.py` / API / 前端自动可见。
+模型插件可通过 `source_url` 元信息声明开源仓库地址，实验详情页会自动展示对应链接。
 
 ## 5. 实验配置（YAML 示例）
 
@@ -135,7 +137,7 @@ dataset:
 task: {context_length: 96, horizon: 96, seasonal_period: 24}
 models:
   - {name: seasonal_naive, config: {period: 24}}
-  - {name: dlinear, config: {epochs: 10, lr: 0.005}}
+  - {name: tslib_dlinear, config: {epochs: 10, lr: 0.005}}
   - {name: tslib_patchtst, config: {epochs: 10}}   # 第三方模型
 metrics: [mse, rmse, mae, mape, smape, mase, r2]
 ```
@@ -163,6 +165,10 @@ results/<run_id>/
 首批接入：`thuml/Time-Series-Library`（PatchTST、iTransformer、DLinear…）。
 Adapter 负责把我们统一的 `(B,L,D)->(B,H,D)` 约定映射到 TSLib 的
 `forward(x_enc, x_mark_enc, x_dec, x_mark_dec)` 签名，并自动补全其 configs 命名空间。
+
+`google-research/timesfm` 通过独立 Adapter 接入 TimesFM 2.5：不在评测数据集上训练，
+`fit()` 加载预训练权重；其单变量接口通过 `(B,L,D) -> (B*D,L)` 展平逐通道调用，
+预测后恢复为 `(B,H,D)`。依赖和权重均采用懒加载，不影响其他模型插件。
 
 ## 8. API 设计
 

@@ -1,4 +1,4 @@
-# ETTh1, 96 步预测：基线 + 原生 DLinear + TSLib DLinear 互证
+# ETTh1, 96 步预测：统计基线 + TSLib 开源 DLinear
 name: etth1_h96
 dataset:
   name: csv
@@ -14,6 +14,5 @@ models:
   - { name: naive }
   - { name: seasonal_naive, config: { period: 24 } }
   - { name: moving_average, config: { window: 24 } }
-  - { name: dlinear, config: { epochs: 10, lr: 0.005 } }
   - { name: tslib_dlinear, config: { epochs: 10, lr: 0.005 } }
 metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]

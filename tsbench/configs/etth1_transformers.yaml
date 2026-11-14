@@ -11,7 +11,7 @@ task:
   horizon: 96
   seasonal_period: 24
 models:
-  - { name: dlinear, config: { epochs: 10, lr: 0.005 } }
+  - { name: tslib_dlinear, config: { epochs: 10, lr: 0.005 } }
   - name: tslib_patchtst
     config: { epochs: 10, lr: 0.001, batch_size: 64, d_model: 128, e_layers: 3, n_heads: 16 }
   - name: tslib_itransformer

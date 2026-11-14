@@ -1,0 +1,17 @@
+# ETTh1, 96 步预测：Google TimesFM 2.5 零样本推理（不训练）
+# 首次运行会从 Hugging Face 下载 google/timesfm-2.5-200m-pytorch 权重。
+name: etth1_timesfm
+dataset:
+  name: csv
+  config:
+    path: data/ETT/ETTh1.csv
+    split: { type: ett }
+    scale: true
+task:
+  context_length: 96
+  horizon: 96
+  seasonal_period: 24
+models:
+  - name: timesfm
+    config: { batch_size: 32, torch_compile: false }
+metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]

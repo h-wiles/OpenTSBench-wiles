@@ -97,6 +97,27 @@ a {
   margin: 8px 0 4px;
 }
 
+.model-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+a.source-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+a.source-link:hover {
+  border-color: var(--series-1);
+}
+
 .page .subtitle {
   color: var(--text-secondary);
   font-size: 13px;

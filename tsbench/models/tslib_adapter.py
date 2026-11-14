@@ -143,6 +143,7 @@ def _register(tslib_name: str, description: str, extra_defaults: Dict[str, Any] 
         f"tslib_{tslib_name.lower()}",
         family="tslib",
         framework="pytorch",
+        source_url="https://github.com/thuml/Time-Series-Library",
         description=f"TSLib {tslib_name}: {description}",
     )
     class _M(TSLibForecastModel):
@@ -152,6 +153,6 @@ def _register(tslib_name: str, description: str, extra_defaults: Dict[str, Any] 
     _M.__name__ = f"TSLib{tslib_name}Model"
 
 
-_register("DLinear", "分解线性基线（与原生源 dlinear 可互证）", {"lr": 5e-3})
+_register("DLinear", "趋势/季节分解线性模型 (AAAI 2023)", {"lr": 5e-3})
 _register("PatchTST", "Patch Transformer (ICLR 2023)", {"d_model": 128, "n_heads": 16, "e_layers": 3, "dropout": 0.2})
 _register("iTransformer", "倒置 Transformer (ICLR 2024)", {"d_model": 128, "d_ff": 128})
