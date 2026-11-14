@@ -30,7 +30,7 @@
 - **第三方模型零侵入接入**：TSLib Adapter 通过 `sys.path` 注入 + 签名自适应包装
   （5 参 / 1 参 forward 自动识别）接入 `thuml/Time-Series-Library`，不修改其源码。
 - **指标体系**：MSE / RMSE / MAE / MAPE / sMAPE / MASE / R²，指标自带方向元信息
-  （前端据此排序与高亮）。
+  （前端据此排序与高亮）；“指标说明”页展示公式、计算步骤和标准化口径。
 - **结果可复现**：每个 run 落盘 config.yaml + meta.json + metrics.json + data.npz。
 - **Web 可视化**：排行榜（按指标排序、每列最优高亮、失败状态展示）、
   实验详情（指标卡片 + 交互式预测曲线：选窗口 / 选通道 / 反标准化回原始量纲）、
