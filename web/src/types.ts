@@ -5,6 +5,7 @@ export interface PluginMeta {
   description?: string;
   family?: string;
   framework?: string;
+  source_url?: string;
   higher_is_better?: boolean;
 }
 
