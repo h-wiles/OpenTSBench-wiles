@@ -14,4 +14,4 @@ task:
 models:
   - name: timesfm
     config: { batch_size: 32, torch_compile: false }
-metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]
+metrics: [ mse, rmse, mae, mape, smape, mase, r2, pearson ]
