@@ -76,6 +76,9 @@ cd web && npm install && npm run dev # Web: http://localhost:5173
 | `python3 cli.py delete <run_id>` | 删除实验 |
 | `python3 cli.py download-data` | 下载 ETT 数据集 |
 
+也可以绕过 CLI 直接运行单个配置（便于调试）：
+`python3 -m tsbench.evaluation.runner tsbench/configs/etth1_h96.yaml`
+
 ## 接入新模型 / 数据集 / 指标
 
 ### 新模型（一行接入开源实现）
