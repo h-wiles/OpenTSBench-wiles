@@ -8,3 +8,6 @@ pydantic
 reformer-pytorch   # Time-Series-Library 的 SelfAttention_Family 依赖
 huggingface-hub>=0.30.0  # TimesFM 预训练权重下载
 safetensors>=0.5.3       # TimesFM 权重加载
+transformers>=4.41,<6    # Chronos-2
+accelerate>=1.1,<2       # Chronos-2 权重加载
+einops>=0.7,<1           # Chronos-2
