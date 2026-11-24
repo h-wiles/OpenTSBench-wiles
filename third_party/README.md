@@ -8,9 +8,11 @@ clone 到对应位置即可，框架会自动发现并使用，不修改其任�
 | `Time-Series-Library/` | [thuml/Time-Series-Library](https://github.com/thuml/Time-Series-Library) | TSLib Adapter 接入的第三方模型库（iTransformer / PatchTST / DLinear 等） | `git clone https://github.com/thuml/Time-Series-Library.git Time-Series-Library` |
 | `ETDataset/` | [thuml/ETDataset](https://github.com/thuml/ETDataset) | ETT 数据集官方仓库（原始数据与说明） | `git clone https://github.com/thuml/ETDataset.git ETDataset` |
 | `timesfm/` | [google-research/timesfm](https://github.com/google-research/timesfm) | TimesFM 2.5 零样本预测适配器 | `git clone https://github.com/google-research/timesfm.git timesfm` |
+| `chronos-forecasting/` | [amazon-science/chronos-forecasting](https://github.com/amazon-science/chronos-forecasting) | Chronos-2 零样本预测适配器 | `git clone https://github.com/amazon-science/chronos-forecasting.git chronos-forecasting` |
 
 说明：
 
 - ETT 四个 CSV 已随本仓库提交至 [data/ETT/](../data/ETT/)，`ETDataset` 仅作参考，可选。
 - `Time-Series-Library` 为运行 TSLib 系列模型（`tslib_*`）所必需，缺失时相关插件报错。
 - `timesfm` 为运行 `timesfm` 插件所必需；预训练权重由 Hugging Face 单独下载并缓存。
+- `chronos-forecasting` 为运行 `chronos2` 插件所必需；默认权重 `amazon/chronos-2` 由 Hugging Face 下载。
