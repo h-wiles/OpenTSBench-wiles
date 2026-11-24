@@ -122,3 +122,28 @@ def r2(y_true, y_pred, **_) -> float:
     if ss_tot < _EPS:
         return float("nan")
     return float(1.0 - ss_res / ss_tot)
+
+
+@register_metric(
+    "pearson",
+    higher_is_better=True,
+    title="皮尔逊相关系数",
+    description="衡量预测值与真实值之间的线性相关程度，取值在 -1 到 1 之间。",
+    formula=r"r=\frac{\sum_{i=1}^{N}\sum_{j=1}^{H}\sum_{k=1}^{D}(y_{ijk}-\bar{y})(\hat{y}_{ijk}-\bar{\hat{y}})}{\sqrt{\sum_{i,j,k}(y_{ijk}-\bar{y})^2}\sqrt{\sum_{i,j,k}(\hat{y}_{ijk}-\bar{\hat{y}})^2}}",
+    calculation="将全部窗口、预测步长和通道展平，分别减去真实值和预测值的全局均值，再计算协方差与两个标准差乘积之比。",
+    note="r=1 为完全正线性相关，0 为无线性相关，-1 为完全负线性相关；对整体缩放和平移不敏感，因此应结合 MSE、MAE 判断预测误差大小。任一序列为常数时无定义，返回 NaN。",
+)
+def pearson(y_true, y_pred, **_) -> float:
+    """全部测试点的 Pearson 相关系数（越高越好）。"""
+    x = np.asarray(y_true, dtype=np.float64).ravel()
+    y = np.asarray(y_pred, dtype=np.float64).ravel()
+    if x.size == 0:
+        return float("nan")
+    x_centered = x - x.mean()
+    y_centered = y - y.mean()
+    denom = np.sqrt(np.dot(x_centered, x_centered)) * np.sqrt(
+        np.dot(y_centered, y_centered)
+    )
+    if denom < _EPS:
+        return float("nan")
+    return float(np.clip(np.dot(x_centered, y_centered) / denom, -1.0, 1.0))
