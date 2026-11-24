@@ -53,9 +53,10 @@ OpenTSBench-wiles/
 │   │   ├── torch_base.py       #   PyTorch 模型通用训练循环 (早停/验证)
 │   │   ├── tslib_adapter.py    #   Time-Series-Library 第三方适配器
 │   │   │                       #   (DLinear/PatchTST/iTransformer, 一行注册)
-│   │   └── timesfm_adapter.py  #   Google TimesFM 2.5 零样本预测适配器
+│   │   ├── timesfm_adapter.py  #   Google TimesFM 2.5 零样本预测适配器
+│   │   └── chronos2_adapter.py #   Amazon Chronos-2 零样本多变量适配器
 │   ├── metrics/                # 指标插件
-│   │   └── forecasting.py      #   MSE/RMSE/MAE/MAPE/sMAPE/MASE/R²
+│   │   └── forecasting.py      #   MSE/RMSE/MAE/MAPE/sMAPE/MASE/R²/Pearson
 │   ├── evaluation/             # 评测层
 │   │   ├── windows.py          #   滑动窗口生成 (context 可回溯到 test 之前)
 │   │   ├── runner.py           #   实验编排: 数据→训练→预测→指标→落盘
@@ -170,6 +171,10 @@ Adapter 负责把我们统一的 `(B,L,D)->(B,H,D)` 约定映射到 TSLib 的
 `google-research/timesfm` 通过独立 Adapter 接入 TimesFM 2.5：不在评测数据集上训练，
 `fit()` 加载预训练权重；其单变量接口通过 `(B,L,D) -> (B*D,L)` 展平逐通道调用，
 预测后恢复为 `(B,H,D)`。依赖和权重均采用懒加载，不影响其他模型插件。
+
+`amazon-science/chronos-forecasting` 通过 Adapter 接入 Chronos-2。该模型原生支持多变量，
+Adapter 将统一输入 `(B,L,D)` 转为 `(B,D,L)` 后联合预测所有通道，并取中位数作为点预测。
+默认权重 `amazon/chronos-2` 为 120M 参数，同样采用零样本推理和懒加载。
 
 ## 8. API 设计
 
