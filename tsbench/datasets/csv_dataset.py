@@ -82,6 +82,13 @@ class CSVDataset(BaseDataset):
         freq = cfg.get("freq", "h")
         if date_col in df.columns:
             ts = pd.to_datetime(df[date_col])
+            if ts.isna().any():
+                raise ValueError(f"date column '{date_col}' contains invalid timestamps")
+            if not ts.is_monotonic_increasing:
+                logger.warning("时间列 %s 非升序，正在按时间稳定排序", date_col)
+                order = np.argsort(ts.to_numpy(), kind="stable")
+                df = df.iloc[order].reset_index(drop=True)
+                ts = ts.iloc[order].reset_index(drop=True)
             timestamps = ts.dt.strftime("%Y-%m-%d %H:%M:%S").to_numpy()
             freq = cfg.get("freq") or _detect_freq(ts)
             df = df.drop(columns=[date_col])
@@ -92,7 +99,7 @@ class CSVDataset(BaseDataset):
         values = df.to_numpy(dtype=np.float64)
         n = len(values)
 
-        b0, b1, b2, b3 = self._split_borders(n, freq)
+        b0, b1, b2, b3 = self._split_borders(n, freq)  # 0，8640，11520，14400 分别代表训练段、验证段、测试段的累计结束位置   #
         train, val, test = values[b0:b1], values[b1:b2], values[b2:b3]
         logger.info(
             "CSV 数据集 %s: 共 %d 行, 切分边界=%s, train=%d val=%d test=%d, freq=%s",
@@ -100,7 +107,7 @@ class CSVDataset(BaseDataset):
         )
 
         mean = std = None
-        if cfg.get("scale", True):
+        if cfg.get("scale", True):      # 均值方差归一化
             mean = train.mean(axis=0)
             std = train.std(axis=0)
             std[std < 1e-8] = 1.0
