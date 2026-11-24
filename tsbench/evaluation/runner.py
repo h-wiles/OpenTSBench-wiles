@@ -173,3 +173,18 @@ def run_experiment(
             on_progress(run_id, meta["status"])
 
     return run_ids
+
+
+if __name__ == "__main__":
+    import sys
+
+    import yaml
+
+    from ..plugins import load_builtin_plugins
+
+    if len(sys.argv) != 2:
+        raise SystemExit("Usage: python -m tsbench.evaluation.runner <config.yaml>")
+    load_builtin_plugins()
+    with open(sys.argv[1]) as f:
+        config = yaml.safe_load(f)
+    run_experiment(config=config)
