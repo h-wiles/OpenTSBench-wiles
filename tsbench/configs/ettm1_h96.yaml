@@ -14,4 +14,4 @@ models:
   - { name: naive }
   - { name: seasonal_naive, config: { period: 96 } }
   - { name: tslib_dlinear, config: { epochs: 5, lr: 0.005, batch_size: 64 } }
-metrics: [ mse, rmse, mae, mape, smape, mase, r2 ]
+metrics: [ mse, rmse, mae, mape, smape, mase, r2, pearson ]
