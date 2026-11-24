@@ -28,8 +28,9 @@
 - **统一评测口径**：所有模型面对完全相同的测试集滑窗（context 可回溯到 test 段之前，
   与 Time-Series-Library 等公开基准口径一致，窗口数逐点可比）。
 - **第三方模型零侵入接入**：TSLib Adapter 通过 `sys.path` 注入 + 签名自适应包装
-  （5 参 / 1 参 forward 自动识别）接入 `thuml/Time-Series-Library`，不修改其源码。
-- **指标体系**：MSE / RMSE / MAE / MAPE / sMAPE / MASE / R²，指标自带方向元信息
+  （5 参 / 1 参 forward 自动识别）接入 `thuml/Time-Series-Library`，不修改其源码；
+  同一机制接入 TimesFM 2.5、Chronos-2 等零样本基座模型，与有监督模型同口径对比。
+- **指标体系**：MSE / RMSE / MAE / MAPE / sMAPE / MASE / R² / Pearson，指标自带方向元信息
   （前端据此排序与高亮）；“指标说明”页展示公式、计算步骤和标准化口径。
 - **结果可复现**：每个 run 落盘 config.yaml + meta.json + metrics.json + data.npz。
 - **Web 可视化**：排行榜（按指标排序、每列最优高亮、失败状态展示）、
@@ -101,6 +102,17 @@ TimesFM 不在当前数据集上训练，`fit()` 仅加载预训练权重。首�
 下载 `google/timesfm-2.5-200m-pytorch`（约 200M 参数），之后使用本地缓存。
 当前采用 Apache-2.0 的 2.5 版本；多通道数据按单变量逐通道推理，再恢复为统一输出形状。
 
+### Chronos-2（零样本多变量预测）
+
+```bash
+git clone https://github.com/amazon-science/chronos-forecasting.git third_party/chronos-forecasting
+python3 cli.py run --config tsbench/configs/etth1_chronos2.yaml
+```
+
+Chronos-2 同样不在评测数据集上训练，`fit()` 仅加载预训练权重。默认采用
+`amazon/chronos-2`（120M 参数，权重文件约 478 MB），首次运行从 Hugging Face 下载。
+它原生支持多变量预测，窗口内所有通道会联合推理。
+
 ### 新数据集
 
 ```python
@@ -118,20 +130,23 @@ def msis(y_true, y_pred, *, y_train=None, seasonal_period=1) -> float: ...
 
 ## 内置模型与结果示例
 
-模型全部来自开源实现（通过 TSLib Adapter 零侵入接入）+ 统计基线。
-ETTh1 · context=96 · horizon=96（CPU 训练，10 epochs，按 MSE 升序）：
+模型全部来自开源实现（通过 TSLib / TimesFM / Chronos-2 Adapter 零侵入接入）+ 统计基线。
+ETTh1 · context=96 · horizon=96（CPU；TSLib 训练 10 epochs，基座模型为零样本，按 MSE 升序）：
 
-| 模型 | MSE | MAE | MASE | R² | 来源 |
-|---|---|---|---|---|---|
-| tslib_itransformer | **0.3894** | **0.4077** | 0.969 | 0.649 | TSLib (ICLR 2024) |
-| tslib_patchtst | 0.3950 | 0.4133 | 0.982 | 0.644 | TSLib (ICLR 2023) |
-| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 | TSLib (AAAI 2023) |
-| seasonal_naive | 0.5122 | 0.4333 | 1.030 | 0.538 | 统计基线 |
-| moving_average | 0.7275 | 0.5700 | 1.355 | 0.344 | 统计基线 |
-| naive | 1.2944 | 0.7132 | 1.695 | -0.168 | 统计基线 |
+| 模型 | MSE | MAE | MASE | R² | Pearson | 来源 |
+|---|---|---|---|---|---|---|
+| tslib_itransformer | **0.3894** | **0.4077** | 0.969 | 0.649 | **0.8071** | TSLib (ICLR 2024) |
+| tslib_patchtst | 0.3950 | 0.4133 | 0.982 | 0.644 | 0.8023 | TSLib (ICLR 2023) |
+| tslib_dlinear | 0.4142 | 0.4304 | 1.023 | 0.626 | 0.7917 | TSLib (AAAI 2023) |
+| chronos2 | 0.4235 | 0.3970 | 0.944 | 0.618 | 0.7951 | Amazon Chronos-2 (120M) |
+| timesfm | 0.4289 | 0.4024 | 0.957 | 0.613 | 0.7869 | Google TimesFM 2.5 (200M) |
+| seasonal_naive | 0.5122 | 0.4333 | 1.030 | 0.538 | 0.7692 | 统计基线 |
+| moving_average | 0.7275 | 0.5700 | 1.355 | 0.344 | 0.5938 | 统计基线 |
+| naive | 1.2944 | 0.7132 | 1.695 | -0.168 | 0.4169 | 统计基线 |
 
-排序符合文献：iTransformer ≈ PatchTST > DLinear > 基线；数值与论文公开结果同量级
-（iTransformer 论文 ETTh1-96 MSE 0.386，本框架 0.389）—— 验证评测口径与公开基准可直接对比。
+TSLib 模型排序符合文献（iTransformer 论文 ETTh1-96 MSE 0.386，本框架 0.389）。
+Chronos-2 与 TimesFM 未使用 ETTh1 训练，仅做零样本推理，指标仍与有监督模型处于同一量级，
+说明同一套测试窗口和指标口径可以横向比较不同训练范式的模型。
 
 ## 目录结构
 
@@ -145,6 +160,7 @@ docs/ARCHITECTURE.md     # 架构设计文档
 
 ## 已验证环境
 
-- Python 3.12 · torch 2.13 (CPU) · FastAPI · pandas 3.0
+- Python 3.12 · torch 2.15 (CPU) · FastAPI · pandas 3.0
 - Node 25 · React 18 · Vite 5 · ECharts 5
-- 数据：ETT (ETTh1/h2/m1/m2)，`thuml/Time-Series-Library` @ third_party
+- 数据：ETT (ETTh1/h2/m1/m2)；模型：`thuml/Time-Series-Library`、
+  `google-research/timesfm`、`amazon-science/chronos-forecasting` @ third_party
